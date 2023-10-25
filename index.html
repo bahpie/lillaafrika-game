@@ -1,109 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Phaser Platformer</title>
+    <title>Side Scroller Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body>
-<script>
-
-var config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create
-    }
-};
-
-var game = new Phaser.Game(config);
-
-function preload() {
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('ground', 'assets/platform.png');
-    this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.audio('bgmusic', 'assets/tune.mp3');
-}
-
-function create() {
-    var music = this.sound.add('bgmusic');
-    music.play();
-
-    this.add.image(400, 300, 'sky');
-
-    var startButton = this.add.text(300, 250, 'Start Game', { fontSize: '32px', fill: '#fff' });
-    startButton.setInteractive();
-    startButton.on('pointerdown', function () {
-        this.scene.start('GameScene');
-    }, this);
-
-    var settingsButton = this.add.text(300, 300, 'Settings', { fontSize: '32px', fill: '#fff' });
-    var quitButton = this.add.text(300, 350, 'Quit', { fontSize: '32px', fill: '#fff' });
-
-    startButton.on('pointerover', function () { startButton.setStyle({ fill: '#ff0' }); });
-    startButton.on('pointerout', function () { startButton.setStyle({ fill: '#fff' }); });
-
-    settingsButton.on('pointerover', function () { settingsButton.setStyle({ fill: '#ff0' }); });
-    settingsButton.on('pointerout', function () { settingsButton.setStyle({ fill: '#fff' }); });
-
-    quitButton.on('pointerover', function () { quitButton.setStyle({ fill: '#ff0' }); });
-    quitButton.on('pointerout', function () { quitButton.setStyle({ fill: '#fff' }); });
-
-    quitButton.setInteractive();
-    quitButton.on('pointerdown', function () {
-        this.game.destroy(true);
-    }, this);
-}
-
-var gameScene = new Phaser.Scene('GameScene');
-
-gameScene.preload = function () {
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('ground', 'assets/platform.png');
-    this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-};
-
-gameScene.create = function () {
-    this.add.image(400, 300, 'sky');
-
-    platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-
-    player = this.physics.add.sprite(100, 450, 'dude');
-
-    player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
-
-    this.physics.add.collider(player, platforms);
-
-    cursors = this.input.keyboard.createCursorKeys();
-};
-
-gameScene.update = function () {
-    if (cursors.left.isDown) {
-        player.setVelocityX(-160);
-    } else if (cursors.right.isDown) {
-        player.setVelocityX(160);
-    } else {
-        player.setVelocityX(0);
-    }
-
-    if (cursors.up.isDown && player.body.touching.down) {
-        player.setVelocityY(-330);
-    }
-};
-
-game.scene.add('GameScene', gameScene);
-
-</script>
+    <script src="game.js"></script>
 </body>
 </html>
