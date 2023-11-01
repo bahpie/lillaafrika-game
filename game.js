@@ -16,6 +16,8 @@ var config = {
     }
 };
 
+const trackLength = 2000;
+
 var game = new Phaser.Game(config);
 
 var platforms;
@@ -30,7 +32,6 @@ var particles;
 
 var screenWidth = window.screen.width;
 var screenHeight = window.screen.height;
-
 
 function preload() {
     this.load.image('menu', 'assets/menu.png');
@@ -73,26 +74,26 @@ gameScene.preload = function() {
     this.load.image('sky', 'assets/mountains-back.png');
     this.load.image('mountains', 'assets/mountains-mid1.png');
     this.load.image('trees', 'assets/mountains-mid2.png');
-    this.load.spritesheet('dude', 'assets/animator.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.image('ground', 'assets/tile128.png');
+    this.load.spritesheet('dude', 'assets/car.png', { frameWidth: 128, frameHeight: 43 });
+    this.load.image('ground', 'assets/roadtiles.png');
     this.load.image('star', 'assets/potato64.png');
-
-    this.load.audio('bgmusic', 'assets/tune.mp3');
-
     this.load.image('particle', 'assets/potato24.png');
+
+//    this.load.audio('bgmusic', 'assets/tune.mp3');false
+
 
 }
 
 gameScene.create = function() {
-    music = this.sound.add('bgmusic');
-    music.play({ loop: true });
+//    music = this.sound.add('bgmusic');
+//    music.play({ loop: true });
 
-    this.cameras.main.setBackgroundColor('#999')
+    this.cameras.main.setBackgroundColor('#87CEEB')
 
 
-    background = this.add.tileSprite(0, 768-894+250, 2048*2, 894, 'sky');
-    middleground = this.add.tileSprite(0, 768-770+250, 2048*2, 770, 'mountains');
-    foreground = this.add.tileSprite(0, 768-482+250, 2048*2, 482, 'trees');
+    background = this.add.tileSprite(0, 768-894+250, trackLength*2, 894, 'sky');
+    middleground = this.add.tileSprite(0, 768-770+250, trackLength*2, 770, 'mountains');
+    foreground = this.add.tileSprite(0, 768-482+250, trackLength*2, 482, 'trees');
 
     player = this.physics.add.sprite(100, 0, 'dude');
     player.setBounce(0.1);
@@ -100,10 +101,20 @@ gameScene.create = function() {
 
     platforms = this.physics.add.staticGroup();
     var previousPlatform = 400;
-    for(i = 0; i< 4096;i+=220) {
+    for(i = 0; i< trackLength;i+=52) {
         var y = 0;
         while(y < previousPlatform - 140) {
-            y = Math.random() * 400;
+            //y = Math.random() * 100 + 600;
+            var rnd = Math.random();
+            if(rnd > .55) {
+                y = previousPlatform + 5;
+            } else if(rnd < 0.45) {
+                y = previousPlatform - 5;
+            } else {
+                y = previousPlatform;
+            }
+            y = Math.max(y, 300);
+            y = Math.min(y, 400);
         }
         platforms.create(i,y,'ground').setScale(1).refreshBody();
 
@@ -114,8 +125,8 @@ gameScene.create = function() {
 
     cursors = this.input.keyboard.createCursorKeys();
 
-    this.cameras.main.setBounds(0, 0, 857*2, screenHeight);
-    this.physics.world.setBounds(0, 0, 857 * 8, screenHeight);
+    this.cameras.main.setBounds(0, 0, trackLength, screenHeight);
+    this.physics.world.setBounds(0, 0, trackLength, screenHeight);
 
     stars = this.physics.add.group({
         key: 'star',
@@ -126,9 +137,11 @@ gameScene.create = function() {
     stars.children.iterate(function (child) {
         child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
     });
-
+    
     this.physics.add.collider(stars, platforms);
     this.physics.add.collider(player, stars, collectStar, null, this);
+
+
 
     score = 0;
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
@@ -138,7 +151,7 @@ gameScene.create = function() {
     this.input.on('pointerdown', function(pointer) {
         // Handle pointer down event here
         if(player.body.blocked.down) {
-            player.setVelocityY(-530);
+            player.setVelocityY(-100);
         }
         console.log('Pointer down at x: ' + pointer.x + ', y: ' + pointer.y);
     }, this);
@@ -148,11 +161,16 @@ gameScene.create = function() {
     // Customize the particle emitter properties
     emitter = particles.createEmitter({
         speed: 100,
-        scale: { start: 1, end: 0 },
+        scale: { start: 2, end: 0 },
         blendMode: 'ADD'
     });
 
     emitter.stop();
+
+    var textConfig = {
+        color: '#ffffff',
+        fontSize: '48px'
+    };
 
 }
 
@@ -169,7 +187,7 @@ gameScene.update = function() {
     player.setVelocityX(160);
 
     if (cursors.up.isDown && player.body.blocked.down) {
-        player.setVelocityY(-530);
+        player.setVelocityY(-100);
     }
 
     if(cursors.down.isDown) {
@@ -185,7 +203,12 @@ gameScene.update = function() {
     foreground.tilePositionX += 1.0;
 
 
+    console.log(player.x);
+    if(player.x > trackLength) {
+        this.scene.start('CreditsScene');
+    }
 }
+
 
 function collectStar(player, star) {
     star.disableBody(true, true);
@@ -207,9 +230,50 @@ function collectStar(player, star) {
     
 }
 
+
+
 // Function to stop the emitter
 function stopEmitter() {
     emitter.stop();
-}
+};
 
 game.scene.add('GameScene', gameScene);
+
+var creditsScene = new Phaser.Scene('CreditsScene');
+
+
+var textArray = [
+    "This is the first line of the credits.",
+    "This is the second line of the credits.",
+    "This is the third line of the credits.",
+    "This is the fourth line of the credits.",
+    "This is the fifth line of the credits."
+];
+
+var textObjects = [];
+
+creditsScene.preload() = function(){
+    // Preload assets if needed
+}
+
+creditsScene.create() = function(){
+    var offsetY = 100;
+
+    for (var i = 0; i < textArray.length; i++) {
+        var text = this.add.text(100, offsetY + (i * 30), textArray[i], { font: "24px Arial", fill: "#ffffff" });
+        textObjects.push(text);
+    }
+}
+
+creditsScene.update()  = function(){
+    for (var i = 0; i < textObjects.length; i++) {
+        textObjects[i].y -= 1;
+
+        // If text object goes off the top of the screen, reset its position
+        if (textObjects[i].y < -30) {
+            textObjects[i].y = 600;
+        }
+    }
+}
+
+game.scene.add('CreditsScene', creditsScene);
