@@ -5,7 +5,45 @@
     <title>Side Scroller Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
-<body>
-    <script src="game.js"></script>
+<body style="background-color: #000">
+    <script src = "menuscene.js"></script>
+    <script src = "gamescene.js"></script>
+    <script src = "creditsscene.js"></script>
+    <script>
+
+        const config = {
+            type: Phaser.AUTO,
+            parent: game,
+            width: 1024,
+            height: 768,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 1000 },
+                    debug: false
+                }
+            },
+            scene: [MenuScene, GameScene, CreditsScene]
+            
+        };
+        
+        const trackLength = 1000;
+        
+        var game = new Phaser.Game(config);
+        
+        var platforms;
+        var player;
+        var cursors;
+        var background;
+        var middleground;
+        var foreground;
+        
+        var emitter;
+        var particles;
+        
+        var screenWidth = window.screen.width;
+        var screenHeight = window.screen.height;
+
+    </script>
 </body>
 </html>
