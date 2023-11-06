@@ -12,13 +12,19 @@ var GameScene = new Phaser.Class({
         this.load.image('ground', 'assets/roadtiles.png');
         this.load.image('star', 'assets/potato64.png');
         this.load.image('particle', 'assets/potato24.png');
-    
-//    this.load.audio('bgmusic', 'assets/tune.mp3');false
+        this.load.image('mosquito', 'assets/mosquito.png');
+
+
+
+    this.load.audio('bgmusic', 'assets/tune.mp3');false
+    this.load.audio('mosquito', 'assets/mosquito.mp3');
     },
 
     create: function() {
-        //    music = this.sound.add('bgmusic');
-        //    music.play({ loop: true });
+        music = this.sound.add('bgmusic');
+        music.play({ loop: true });
+
+        mosquitoSound = this.sound.add('mosquito');
 
         this.cameras.main.setBackgroundColor('#87CEEB')
 
@@ -32,7 +38,7 @@ var GameScene = new Phaser.Class({
         player.setCollideWorldBounds(false);
 
         platforms = this.physics.add.staticGroup();
-        var previousPlatform = 400;
+        var previousPlatform = 500;
         for(i = 0; i< trackLength;i+=52) {
             var y = 0;
             while(y < previousPlatform - 140) {
@@ -45,8 +51,8 @@ var GameScene = new Phaser.Class({
                 } else {
                     y = previousPlatform;
                 }
-                y = Math.max(y, 300);
-                y = Math.min(y, 400);
+                y = Math.max(y, 500);
+                y = Math.min(y, 600);
             }
             platforms.create(i,y,'ground').setScale(1).refreshBody();
 
@@ -58,15 +64,15 @@ var GameScene = new Phaser.Class({
         // Create an animation manager for the sprite
         var anims = this.anims;
     
-        // // Define an animation
-        // anims.create({
-        //     key: 'driving',
-        //     frames: anims.generateFrameNumbers('player', { start: 0, end: 3}),
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
+        // Define an animation
+        anims.create({
+            key: 'driving',
+            frames: anims.generateFrameNumbers('player', { start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
     
-    //    player.anims.play('driving', true);
+//       player.anims.play('driving', true);
     
         cursors = this.input.keyboard.createCursorKeys();
     
@@ -95,10 +101,10 @@ var GameScene = new Phaser.Class({
     
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
+            player.setVelocityY(-100);
             if(player.body.blocked.down) {
                 player.setVelocityY(-100);
             }
-            console.log('Pointer down at x: ' + pointer.x + ', y: ' + pointer.y);
         }, this);
     
         particles = this.add.particles('particle');
@@ -116,6 +122,12 @@ var GameScene = new Phaser.Class({
             color: '#ffffff',
             fontSize: '48px'
         };
+
+        mosquito = this.physics.add.sprite(800, Phaser.Math.Between(0, 300), 'mosquito');
+        mosquito.setVelocity(-100, 0); // Set the obstacle's initial velocity
+        mosquitoSound.play();
+
+        this.physics.add.collider(player, mosquito, this.hitMosquito, null, this);
     
     },
 
@@ -150,7 +162,33 @@ var GameScene = new Phaser.Class({
 
         if(player.x > trackLength) {
             console.log("End of the road...")
+            mosquitoSound.stop();
             this.scene.start('CreditsScene');
+        }
+
+        if (mosquito.x < 0) {
+            mosquito.x = player.x + 500;
+            mosquito.y = Phaser.Math.Between(0, 300);
+        } 
+        
+        if(mosquito.y < 20){
+            mosquito.setVelocityY(0);
+        } else if(mosquito.y > 200) {
+            mosquito.setVelocityY(Math.random() * 100 - 400);
+        }
+        
+        
+        //Check if the sprite is inside the camera's viewport
+        if (this.cameras.main.worldView.contains(mosquito.x, mosquito.y)) {
+            if(!mosquitoSound.isPlaying) {
+                mosquitoSound.play();
+            }
+        } else {
+            mosquitoSound.stop();
+        }
+
+        if(score < 0) {
+            score = 0;
         }
     },
 
@@ -177,6 +215,14 @@ var GameScene = new Phaser.Class({
 
     stopEmitter: function() {
         emitter.stop();
+    },
+
+    hitMosquito: function() {
+        score -= 50;
+        mosquito.x = player.x + 800;
+        mosquito.setVelocityX(-100);
+        mosquitoSound.stop();
+
     }
 
 });
