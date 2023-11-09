@@ -16,7 +16,7 @@ var config = {
     }
 };
 
-const trackLength = 2000;
+const trackLength = 1000;
 
 var game = new Phaser.Game(config);
 
@@ -74,7 +74,7 @@ gameScene.preload = function() {
     this.load.image('sky', 'assets/mountains-back.png');
     this.load.image('mountains', 'assets/mountains-mid1.png');
     this.load.image('trees', 'assets/mountains-mid2.png');
-    this.load.spritesheet('dude', 'assets/car.png', { frameWidth: 128, frameHeight: 43 });
+    this.load.spritesheet('dude', 'assets/caranim.png', { frameWidth: 128, frameHeight: 64 });
     this.load.image('ground', 'assets/roadtiles.png');
     this.load.image('star', 'assets/potato64.png');
     this.load.image('particle', 'assets/potato24.png');
@@ -122,6 +122,19 @@ gameScene.create = function() {
     }
     
     this.physics.add.collider(player, platforms);
+
+    // Create an animation manager for the sprite
+    var anims = this.anims;
+
+    // // Define an animation
+    // anims.create({
+    //     key: 'driving',
+    //     frames: anims.generateFrameNumbers('player', { start: 0, end: 3}),
+    //     frameRate: 10,
+    //     repeat: -1
+    // });
+
+//    player.anims.play('driving', true);
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -188,6 +201,7 @@ gameScene.update = function() {
 
     if (cursors.up.isDown && player.body.blocked.down) {
         player.setVelocityY(-100);
+        //player.anims.play('jumping', true);
     }
 
     if(cursors.down.isDown) {
@@ -202,9 +216,8 @@ gameScene.update = function() {
     middleground.tilePositionX += .5;
     foreground.tilePositionX += 1.0;
 
-
-    console.log(player.x);
     if(player.x > trackLength) {
+        console.log("End of the road...")
         this.scene.start('CreditsScene');
     }
 }
@@ -239,41 +252,42 @@ function stopEmitter() {
 
 game.scene.add('GameScene', gameScene);
 
-var creditsScene = new Phaser.Scene('CreditsScene');
+var creditScene = new Phaser.Scene('CreditScene');
 
 
-var textArray = [
-    "This is the first line of the credits.",
-    "This is the second line of the credits.",
-    "This is the third line of the credits.",
-    "This is the fourth line of the credits.",
-    "This is the fifth line of the credits."
+var text;
+var credits = [
+    "Game Credits",
+    "** Bonusfamiljen produktion presenterar **",
+    "Vägen till Lilla Afrikafestivalen 2024",
+    "Ljud och Grafik - Magnus Hansson",
+    "Programmering - Björn Öhnell",
+    "***",
+    "Tack till..."
 ];
+var yOffset = 600;
+var speed = 1;
 
-var textObjects = [];
 
-creditsScene.preload() = function(){
-    // Preload assets if needed
+creditScene.preload = function() {
+    // preload assets if needed
+    console.log("credit preload");
+};
+
+creditScene.create = function (){
+    text = this.add.text(200, 0, '', { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff' });
+
+    this.timedEvent = this.time.addEvent({ delay: 100, callback: updateCredits, callbackScope: this, loop: true });
+    console.log("credit create");
+
 }
 
-creditsScene.create() = function(){
-    var offsetY = 100;
+creditScene.update = function (){
+    // update logic if needed
+    console.log("credit update");
 
-    for (var i = 0; i < textArray.length; i++) {
-        var text = this.add.text(100, offsetY + (i * 30), textArray[i], { font: "24px Arial", fill: "#ffffff" });
-        textObjects.push(text);
-    }
 }
 
-creditsScene.update()  = function(){
-    for (var i = 0; i < textObjects.length; i++) {
-        textObjects[i].y -= 1;
 
-        // If text object goes off the top of the screen, reset its position
-        if (textObjects[i].y < -30) {
-            textObjects[i].y = 600;
-        }
-    }
-}
 
-game.scene.add('CreditsScene', creditsScene);
+game.scene.add('CreditScene', creditScene);

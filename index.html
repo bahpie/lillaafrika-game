@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Side Scroller Game</title>
+    <title>Vägen till Lilla Afrikafestivalen</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body style="background-color: #000">
@@ -15,7 +15,7 @@
             type: Phaser.AUTO,
             parent: game,
             width: 1024,
-            height: 768,
+            height: 400,
             physics: {
                 default: 'arcade',
                 arcade: {
@@ -23,11 +23,11 @@
                     debug: false
                 }
             },
-            scene: [MenuScene, GameScene, CreditsScene]
+            scene: [GameScene, CreditsScene]
             
         };
         
-        const trackLength = 4000;
+        const trackLength = 10000;
         
         var game = new Phaser.Game(config);
         
@@ -37,6 +37,9 @@
         var background;
         var middleground;
         var foreground;
+        var hasRocket = false;
+        var isBoosting = false;
+
         
         var emitter;
         var particles;

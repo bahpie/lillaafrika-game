@@ -8,12 +8,13 @@ var GameScene = new Phaser.Class({
         this.load.image('sky', 'assets/mountains-back.png');
         this.load.image('mountains', 'assets/mountains-mid1.png');
         this.load.image('trees', 'assets/mountains-mid2.png');
-        this.load.spritesheet('dude', 'assets/caranim.png', { frameWidth: 128, frameHeight: 64 });
-        this.load.image('ground', 'assets/roadtiles.png');
+        this.load.spritesheet('volvo', 'assets/caranim.png', { frameWidth: 128, frameHeight: 64 });
+        this.load.image('road', 'assets/road.png');
         this.load.image('star', 'assets/potato64.png');
         this.load.image('particle', 'assets/potato24.png');
         this.load.image('mosquito', 'assets/mosquito.png');
-
+        this.load.image('platform', 'assets/platform.png');
+        this.load.image('rocket', 'assets/rocket.png');
 
 
     this.load.audio('bgmusic', 'assets/tune.mp3');false
@@ -28,85 +29,104 @@ var GameScene = new Phaser.Class({
 
         this.cameras.main.setBackgroundColor('#87CEEB')
 
-
-        background = this.add.tileSprite(0, 768-894+250, trackLength*2, 894, 'sky');
-        middleground = this.add.tileSprite(0, 768-770+250, trackLength*2, 770, 'mountains');
-        foreground = this.add.tileSprite(0, 768-482+250, trackLength*2, 482, 'trees');
-
-        player = this.physics.add.sprite(100, 0, 'dude');
-        player.setBounce(0.1);
-        player.setCollideWorldBounds(false);
+        background = this.add.tileSprite(0, 150, trackLength*2 + 50, 894, 'sky');
+        middleground = this.add.tileSprite(0, 200, trackLength*2 + 50, 770, 'mountains');
+        foreground = this.add.tileSprite(0, 300, trackLength*2 + 50, 482, 'trees');
 
         platforms = this.physics.add.staticGroup();
-        var previousPlatform = 500;
-        for(i = 0; i< trackLength;i+=52) {
+
+        var previousPlatform = 460;
+        for(i = 0; i< trackLength+50;i+=60) {
             var y = 0;
             while(y < previousPlatform - 140) {
-                //y = Math.random() * 100 + 600;
                 var rnd = Math.random();
-                if(rnd > .55) {
+                if(rnd > .55) {            
+                    platforms.create(i,y + 20,'platform').setScale(1).refreshBody();
                     y = previousPlatform + 5;
                 } else if(rnd < 0.45) {
                     y = previousPlatform - 5;
                 } else {
                     y = previousPlatform;
                 }
-                y = Math.max(y, 500);
-                y = Math.min(y, 600);
+                y = Math.max(y, 460);
+                y = Math.min(y, 550);
             }
-            platforms.create(i,y,'ground').setScale(1).refreshBody();
+            platforms.create(i, 470,'platform').setScale(1).refreshBody();
+            
+            
+            road = this.add.sprite(i,y, 'road');
+
 
             previousPlatform = y;
         }
     
+        player = this.physics.add.sprite(200, 0, 'volvo');
+        player.setBounce(0.1);
+        player.setCollideWorldBounds(false);
+
         this.physics.add.collider(player, platforms);
     
-        // Create an animation manager for the sprite
-        var anims = this.anims;
-    
-        // Define an animation
-        anims.create({
-            key: 'driving',
-            frames: anims.generateFrameNumbers('player', { start: 0, end: 3}),
-            frameRate: 10,
-            repeat: -1
-        });
-    
-//       player.anims.play('driving', true);
     
         cursors = this.input.keyboard.createCursorKeys();
     
-        this.cameras.main.setBounds(0, 0, trackLength, screenHeight);
-        this.physics.world.setBounds(0, 0, trackLength, screenHeight);
+        this.cameras.main.setBounds(0, 0, trackLength, 500);
+        this.physics.world.setBounds(0, 0, trackLength, 500);
     
         stars = this.physics.add.group({
             key: 'star',
             repeat: 30,
-            setXY: { x: 12, y: 0, stepX: 140 }
+            setXY: { x: 12, y: 300, stepX: 140 }
         });
     
         stars.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+            child.setBounceY(0);
         });
         
+        rocket = this.physics.add.sprite(800, 200, 'rocket');
+
+
+        this.physics.add.collider(player, rocket, this.collectRocket, null, this);
         this.physics.add.collider(stars, platforms);
         this.physics.add.collider(player, stars, this.collectStar, null, this);
-    
-    
+        this.physics.add.collider(rocket, platforms);
+
     
         score = 0;
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
         scoreText.setScrollFactor(0);
     
-    
+  
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
-            player.setVelocityY(-100);
-            if(player.body.blocked.down) {
-                player.setVelocityY(-100);
+            if(player.body.blocked.down && pointer.worldX > player.x) {
+                player.setVelocityY(-400);
+                player.setVelocityX(120)
+                console.log(hasRocket);
+            } else if (hasRocket) {
+                isBoosting = true;
+            } else if(pointer.worldX < player.x) {
+                player.setVelocityX(50)
             }
         }, this);
-    
+
+        this.input.on('pointerup', function(pointer) {
+            isBoosting = false;
+            console.log(pointer.worldX);
+        }, this);
+
+
+
+        this.input.on('pointermove', function(pointer) {
+            console.log('Pointer position - X: ' + pointer.x + ', Y: ' + pointer.y);
+            if(isBoosting) {
+                var velX = Math.max(pointer.x - player.x, 0) * 5;
+                player.setVelocityX(160);
+                player.setVelocityY(pointer.y- player.y);
+            }
+        });
+
+        player.setVelocityX(160);
+   
         particles = this.add.particles('particle');
     
         // Customize the particle emitter properties
@@ -133,36 +153,16 @@ var GameScene = new Phaser.Class({
 
     update: function() {
 
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-        } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-        } else {
-            player.setVelocityX(0);
-        }
-
-        player.setVelocityX(160);
-
-        if (cursors.up.isDown && player.body.blocked.down) {
-            player.setVelocityY(-100);
-            //player.anims.play('jumping', true);
-        }
-
-        if(cursors.down.isDown) {
-            console.log(player.x);
-            emitter.setPosition(player.x, player.y);
-            emitter.start();
-        }
-
         //this.cameras.main.scrollX += 1;   
         this.cameras.main.startFollow(player);
-        background.tilePositionX += 0.1;
-        middleground.tilePositionX += .5;
-        foreground.tilePositionX += 1.0;
+        background.tilePositionX += 0.0;
+        middleground.tilePositionX += .1;
+        foreground.tilePositionX += 0.2;
 
         if(player.x > trackLength) {
             console.log("End of the road...")
             mosquitoSound.stop();
+            this.queryName();
             this.scene.start('CreditsScene');
         }
 
@@ -173,8 +173,8 @@ var GameScene = new Phaser.Class({
         
         if(mosquito.y < 20){
             mosquito.setVelocityY(0);
-        } else if(mosquito.y > 200) {
-            mosquito.setVelocityY(Math.random() * 100 - 400);
+        } else if(mosquito.y > 400) {
+            mosquito.setVelocityY(Math.random() * 500 - 800);
         }
         
         
@@ -204,6 +204,8 @@ var GameScene = new Phaser.Class({
         // Start emitting particles
         emitter.start();
 
+        player.setVelocityX(160);
+
         // Set a timer to stop the emitter after a certain duration if necessary
         this.time.addEvent({
             delay: 300, // duration in milliseconds
@@ -211,6 +213,11 @@ var GameScene = new Phaser.Class({
             callbackScope: this
         });
         
+    },
+
+    collectRocket: function(player, rocket) {
+        hasRocket = true;
+        rocket.disableBody(true, true);
     },
 
     stopEmitter: function() {
@@ -223,6 +230,13 @@ var GameScene = new Phaser.Class({
         mosquito.setVelocityX(-100);
         mosquitoSound.stop();
 
+    },
+
+    queryName: function() {
+        let playerName = prompt("Please enter your name", "Spelare Spelarsson");
+        if (person != null) {
+            console.log(playerName);
+        }
     }
 
 });
