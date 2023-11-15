@@ -15,10 +15,12 @@ var GameScene = new Phaser.Class({
         this.load.image('mosquito', 'assets/mosquito.png');
         this.load.image('platform', 'assets/platform.png');
         this.load.image('rocket', 'assets/rocket.png');
+        this.load.spritesheet('tractor', 'assets/tractor.png', {frameWidth: 128, frameHeight: 96});
 
 
-    this.load.audio('bgmusic', 'assets/tune.mp3');false
+    this.load.audio('bgmusic', 'assets/tune.mp3');
     this.load.audio('mosquito', 'assets/mosquito.mp3');
+    this.load.audio('tractor', 'assets/tractor.wav');
     },
 
     create: function() {
@@ -26,15 +28,19 @@ var GameScene = new Phaser.Class({
         music.play({ loop: true });
 
         mosquitoSound = this.sound.add('mosquito');
+        tractorSound = this.sound.add('tractor');
 
-        this.cameras.main.setBackgroundColor('#87CEEB')
+        this.cameras.main.setBounds(0, 0, trackLength, 500);
+        this.physics.world.setBounds(0, 0, trackLength, 500);
+
 
         background = this.add.tileSprite(0, 150, trackLength*2 + 50, 894, 'sky');
         middleground = this.add.tileSprite(0, 200, trackLength*2 + 50, 770, 'mountains');
         foreground = this.add.tileSprite(0, 300, trackLength*2 + 50, 482, 'trees');
 
-        platforms = this.physics.add.staticGroup();
 
+        //Generate road
+        platforms = this.physics.add.staticGroup();
         var previousPlatform = 460;
         for(i = 0; i< trackLength+50;i+=60) {
             var y = 0;
@@ -49,7 +55,7 @@ var GameScene = new Phaser.Class({
                     y = previousPlatform;
                 }
                 y = Math.max(y, 460);
-                y = Math.min(y, 550);
+                y = Math.min(y, 500);
             }
             platforms.create(i, 470,'platform').setScale(1).refreshBody();
             
@@ -62,20 +68,25 @@ var GameScene = new Phaser.Class({
     
         player = this.physics.add.sprite(200, 0, 'volvo');
         player.setBounce(0.1);
-        player.setCollideWorldBounds(false);
+    
+        tractor = this.physics.add.sprite(1500,100,'tractor');
 
-        this.physics.add.collider(player, platforms);
-    
-    
-        cursors = this.input.keyboard.createCursorKeys();
-    
-        this.cameras.main.setBounds(0, 0, trackLength, 500);
-        this.physics.world.setBounds(0, 0, trackLength, 500);
-    
+        // Create an animation manager for the sprite
+        anims = this.anims;
+
+        // Define an animation
+        anims.create({
+            key: 'running',
+            frames: anims.generateFrameNumbers('tractor', { start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+
         stars = this.physics.add.group({
             key: 'star',
             repeat: 30,
-            setXY: { x: 12, y: 300, stepX: 140 }
+            setXY: { x: 12, y: 300, stepX: 190 }
         });
     
         stars.children.iterate(function (child) {
@@ -83,14 +94,7 @@ var GameScene = new Phaser.Class({
         });
         
         rocket = this.physics.add.sprite(800, 200, 'rocket');
-
-
-        this.physics.add.collider(player, rocket, this.collectRocket, null, this);
-        this.physics.add.collider(stars, platforms);
-        this.physics.add.collider(player, stars, this.collectStar, null, this);
-        this.physics.add.collider(rocket, platforms);
-
-    
+   
         score = 0;
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
         scoreText.setScrollFactor(0);
@@ -145,10 +149,15 @@ var GameScene = new Phaser.Class({
 
         mosquito = this.physics.add.sprite(800, Phaser.Math.Between(0, 300), 'mosquito');
         mosquito.setVelocity(-100, 0); // Set the obstacle's initial velocity
-        mosquitoSound.play();
 
         this.physics.add.collider(player, mosquito, this.hitMosquito, null, this);
-    
+        this.physics.add.collider(player, platforms);
+        this.physics.add.collider(player, rocket, this.collectRocket, null, this);
+        this.physics.add.collider(stars, platforms);
+        this.physics.add.collider(player, stars, this.collectStar, null, this);
+        this.physics.add.collider(rocket, platforms);
+        this.physics.add.collider(tractor, platforms);
+
     },
 
     update: function() {
@@ -161,7 +170,6 @@ var GameScene = new Phaser.Class({
 
         if(player.x > trackLength) {
             console.log("End of the road...")
-            mosquitoSound.stop();
             this.queryName();
             this.scene.start('CreditsScene');
         }
@@ -189,6 +197,21 @@ var GameScene = new Phaser.Class({
 
         if(score < 0) {
             score = 0;
+        }
+
+        if(player.x > tractor.x) {
+            tractor.setVelocityX(40); 
+            if(!tractorSound.isPlaying) {
+                tractorSound.play();
+            }
+            tractor.anims.play('running', true);
+            
+            var timedEvent = this.time.addEvent({
+                delay: 3000, // delay in milliseconds
+                callback: this.secondGearEvent, // callback function to execute
+                callbackScope: this, // scope of the callback function (the scene in this case)
+                loop: false // set to true if you want the event to repeat
+            });
         }
     },
 
@@ -237,6 +260,10 @@ var GameScene = new Phaser.Class({
         if (person != null) {
             console.log(playerName);
         }
+    },
+
+    secondGearEvent: function() {
+        tractor.setVelocityX(250);
     }
 
 });
