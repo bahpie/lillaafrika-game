@@ -96,7 +96,7 @@ var GameScene = new Phaser.Class({
         rocket = this.physics.add.sprite(800, 200, 'rocket');
    
         score = 0;
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
+        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#eee' });
         scoreText.setScrollFactor(0);
     
   
@@ -105,8 +105,7 @@ var GameScene = new Phaser.Class({
             if(player.body.blocked.down && pointer.worldX > player.x) {
                 player.setVelocityY(-400);
                 player.setVelocityX(120)
-                console.log(hasRocket);
-            } else if (hasRocket) {
+            } else if (rocketFuel > 0) {
                 isBoosting = true;
             } else if(pointer.worldX < player.x) {
                 player.setVelocityX(50)
@@ -116,6 +115,7 @@ var GameScene = new Phaser.Class({
         this.input.on('pointerup', function(pointer) {
             isBoosting = false;
             console.log(pointer.worldX);
+            this.updateRocketBar();
         }, this);
 
 
@@ -126,8 +126,10 @@ var GameScene = new Phaser.Class({
                 var velX = Math.max(pointer.x - player.x, 0) * 5;
                 player.setVelocityX(160);
                 player.setVelocityY(pointer.y- player.y);
+                rocketFuel-=1;
             }
         });
+
 
         player.setVelocityX(160);
    
@@ -146,6 +148,10 @@ var GameScene = new Phaser.Class({
             color: '#ffffff',
             fontSize: '48px'
         };
+
+        rocketBar = this.add.graphics();
+        this.updateRocketBar();
+        rocketBar.setScrollFactor(0);
 
         mosquito = this.physics.add.sprite(800, Phaser.Math.Between(0, 300), 'mosquito');
         mosquito.setVelocity(-100, 0); // Set the obstacle's initial velocity
@@ -239,8 +245,28 @@ var GameScene = new Phaser.Class({
     },
 
     collectRocket: function(player, rocket) {
-        hasRocket = true;
+        rocketFuel = 1000;
         rocket.disableBody(true, true);
+        this.updateRocketBar();
+    },
+
+
+    updateRocketBar : function() {
+        console.log(rocketFuel);
+  
+        rocketBar.clear();
+        // Set the fill style of the power bar
+        rocketBar.fillStyle(0xbbbbbb);
+    
+        // Draw the power bar
+        rocketBar.fillRect(47, 47, 16, 206);
+        
+        // Set the fill style of the power bar
+        rocketBar.fillStyle(0x00ff00);
+    
+        // Draw the power bar
+        rocketBar.fillRect(50, 250 - rocketFuel/5, 10, rocketFuel/5);
+
     },
 
     stopEmitter: function() {
