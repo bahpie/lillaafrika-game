@@ -8,7 +8,7 @@ var GameScene = new Phaser.Class({
         this.load.image('sky', 'assets/mountains-back.png');
         this.load.image('mountains', 'assets/mountains-mid1.png');
         this.load.image('trees', 'assets/mountains-mid2.png');
-        this.load.spritesheet('volvo', 'assets/caranim.png', { frameWidth: 128, frameHeight: 64 });
+        this.load.spritesheet('volvo', 'assets/spritesheetvolvo.png', { frameWidth: 128, frameHeight: 64 });
         this.load.image('road', 'assets/road.png');
         this.load.image('star', 'assets/potato64.png');
         this.load.image('particle', 'assets/potato24.png');
@@ -69,7 +69,7 @@ var GameScene = new Phaser.Class({
         player = this.physics.add.sprite(200, 0, 'volvo');
         player.setBounce(0.1);
     
-        tractor = this.physics.add.sprite(1500,100,'tractor');
+        tractor = this.physics.add.sprite(700,100,'tractor');
 
         // Create an animation manager for the sprite
         anims = this.anims;
@@ -82,23 +82,39 @@ var GameScene = new Phaser.Class({
             repeat: -1
         });
 
+        anims.create({
+            key:'driving',
+            frames: anims.generateFrameNumbers('volvo', {start:0, end:4}),
+            frameRate:10,
+            repeat:-1
+        })
+
+        anims.create({
+            key:'crashing',
+            frames: anims.generateFrameNumbers('volvo', {start:5, end:9}),
+            frameRate:8
+        })
+
+
+        player.anims.play('driving', true);
+
 
         stars = this.physics.add.group({
             key: 'star',
             repeat: 30,
-            setXY: { x: 12, y: 300, stepX: 190 }
+            setXY: { x: 12, y: 300, stepX: 280 }
         });
     
         stars.children.iterate(function (child) {
             child.setBounceY(0);
         });
         
-        rocket = this.physics.add.sprite(800, 200, 'rocket');
+        rocket = this.physics.add.sprite(1100, 200, 'rocket');
    
         score = 0;
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#eee' });
         scoreText.setScrollFactor(0);
-    
+        
   
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
@@ -159,10 +175,12 @@ var GameScene = new Phaser.Class({
         this.physics.add.collider(player, mosquito, this.hitMosquito, null, this);
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(player, rocket, this.collectRocket, null, this);
+        this.physics.add.collider(player, tractor, this.hitTractor, null, this);
         this.physics.add.collider(stars, platforms);
         this.physics.add.collider(player, stars, this.collectStar, null, this);
         this.physics.add.collider(rocket, platforms);
         this.physics.add.collider(tractor, platforms);
+        tractorCollider = this.physics.add.collider(tractor, stars, this.collectStar, null, this);
 
     },
 
@@ -175,7 +193,7 @@ var GameScene = new Phaser.Class({
         foreground.tilePositionX += 0.2;
 
         if(player.x > trackLength) {
-            console.log("End of the road...")
+            console.log("End of the road...");
             this.queryName();
             this.scene.start('CreditsScene');
         }
@@ -248,6 +266,16 @@ var GameScene = new Phaser.Class({
         rocketFuel = 1000;
         rocket.disableBody(true, true);
         this.updateRocketBar();
+    },
+
+    hitTractor: function(player, tractor) {
+        if(!hasCrashed) {
+            tractor.setVelocityX(0);
+            player.anims.play('crashing', true);
+            hasCrashed = true;
+        } else if(player.x > tractor.x - 10){
+            player.setVelocityX(0);
+        }
     },
 
 
