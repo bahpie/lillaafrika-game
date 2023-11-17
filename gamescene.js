@@ -140,9 +140,9 @@ var GameScene = new Phaser.Class({
             console.log('Pointer position - X: ' + pointer.x + ', Y: ' + pointer.y);
             if(isBoosting) {
                 var velX = Math.max(pointer.x - player.x, 0) * 5;
-                player.setVelocityX(160);
+                player.setVelocityX(120);
                 player.setVelocityY(pointer.y- player.y);
-                rocketFuel-=1;
+                rocketFuel = Math.max(rocketFuel - 10, 0);
             }
         });
 
