@@ -7,6 +7,7 @@
 </head>
 <body style="background-color: #000">
     <script src = "menuscene.js"></script>
+    <script src = "textscene.js"></script>
     <script src = "gamescene.js"></script>
     <script src = "creditsscene.js"></script>
     <script>
@@ -14,8 +15,8 @@
         const config = {
             type: Phaser.AUTO,
             parent: game,
-            width: 1024,
-            height: 400,
+            width: 1200,
+            height: 1080,
             physics: {
                 default: 'arcade',
                 arcade: {
@@ -23,7 +24,7 @@
                     debug: false
                 }
             },
-            scene: [GameScene, CreditsScene]
+            scene: [MenuScene, TextScene, GameScene]
             
         };
         

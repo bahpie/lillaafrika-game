@@ -8,7 +8,7 @@ var GameScene = new Phaser.Class({
         this.load.image('sky', 'assets/mountains-back.png');
         this.load.image('mountains', 'assets/mountains-mid1.png');
         this.load.image('trees', 'assets/mountains-mid2.png');
-        this.load.spritesheet('volvo', 'assets/spritesheetvolvo.png', { frameWidth: 128, frameHeight: 64 });
+        this.load.spritesheet('volvo', 'assets/245sheet.png', { frameWidth: 128, frameHeight: 64 });
         this.load.image('road', 'assets/road.png');
         this.load.image('star', 'assets/potato64.png');
         this.load.image('particle', 'assets/potato24.png');
@@ -93,6 +93,13 @@ var GameScene = new Phaser.Class({
             key:'crashing',
             frames: anims.generateFrameNumbers('volvo', {start:5, end:9}),
             frameRate:8
+        })
+
+        anims.create({
+            key:'flying',
+            frames: anims.generateFrameNumbers('volvo', {start:10, end:14}),
+            frameRate:10,
+            repeat:-1
         })
 
 
@@ -266,6 +273,7 @@ var GameScene = new Phaser.Class({
         rocketFuel = 1000;
         rocket.disableBody(true, true);
         this.updateRocketBar();
+        player.anims.play('flying', true);
     },
 
     hitTractor: function(player, tractor) {

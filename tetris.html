@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Tetris Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+</head>
+<body>
+
+<script>
+  const config = {
+    type: Phaser.AUTO,
+    width: 300,
+    height: 600,
+    scene: {
+      preload: preload,
+      create: create,
+      update: update
+    }
+  };
+
+  const game = new Phaser.Game(config);
+
+  let score = 0;
+  let scoreText;
+  let cursors;
+  let tetrisPiece;
+  let board;
+  let timer;
+
+  function preload() {
+    this.load.image('block', 'assets/tile.png');
+  }
+
+  function create() {
+    scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '20px', fill: '#fff' });
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    board = createEmptyBoard();
+
+    spawnPiece();
+
+    timer = this.time.addEvent({
+      delay: 1000,
+      callback: movePieceDown,
+      callbackScope: this,
+      loop: true
+    });
+  }
+
+  function update() {
+    if (cursors.left.isDown) {
+      movePiece(-1, 0);
+    } else if (cursors.right.isDown) {
+      movePiece(1, 0);
+    } else if (cursors.down.isDown) {
+      movePieceDown();
+    }
+  }
+
+  function createEmptyBoard() {
+    const board = [];
+    for (let row = 0; row < 20; row++) {
+      board[row] = [];
+      for (let col = 0; col < 10; col++) {
+        board[row][col] = null;
+      }
+    }
+    return board;
+  }
+
+  function spawnPiece() {
+    const pieceTypes = [
+      [[1, 1, 1, 1]],         // I
+      [[1, 1, 1], [1]],       // L
+      [[1, 1, 1], [0, 0, 1]], // J
+      [[1, 1], [1, 1]],       // O
+      [[1, 1, 1], [0, 1]],    // T
+      [[1, 1], [1, 0, 1]],     // S
+      [[1, 1], [0, 1, 1]]      // Z
+    ];
+
+    const randomPiece = pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+    const pieceColor = 0xffffff * Math.random();
+
+    tetrisPiece = {
+      shape: randomPiece,
+      color: pieceColor,
+      row: 0,
+      col: Math.floor((10 - randomPiece[0].length) / 2)
+    };
+
+    drawPiece();
+  }
+
+  function drawPiece() {
+    for (let row = 0; row < tetrisPiece.shape.length; row++) {
+      for (let col = 0; col < tetrisPiece.shape[row].length; col++) {
+        if (tetrisPiece.shape[row][col] === 1) {
+          const block = game.add.sprite((tetrisPiece.col + col) * 30, (tetrisPiece.row + row) * 30, 'block').setOrigin(0);
+          block.tint = tetrisPiece.color;
+        }
+      }
+    }
+  }
+
+  function movePieceDown() {
+    if (canMove(1, 0)) {
+      clearPiece();
+      tetrisPiece.row++;
+      drawPiece();
+    } else {
+      placePiece();
+      clearLines();
+      spawnPiece();
+    }
+  }
+
+  function movePiece(deltaRow, deltaCol) {
+    if (canMove(deltaRow, deltaCol)) {
+      clearPiece();
+      tetrisPiece.row += deltaRow;
+      tetrisPiece.col += deltaCol;
+      drawPiece();
+    }
+  }
+
+  function canMove(deltaRow, deltaCol) {
+    for (let row = 0; row < tetrisPiece.shape.length; row++) {
+      for (let col = 0; col < tetrisPiece.shape[row].length; col++) {
+        const newRow = tetrisPiece.row + row + deltaRow;
+        const newCol = tetrisPiece.col + col + deltaCol;
+
+        if (
+          tetrisPiece.shape[row][col] === 1 &&
+          (newRow < 0 || newRow >= 20 || newCol < 0 || newCol >= 10 || board[newRow][newCol] !== null)
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function clearPiece() {
+    game.children.each(function (child) {
+        if (child instanceof Phaser.GameObjects.Sprite) {
+            child.destroy();
+        }
+    });
+
+    // Also clear the tetrisPiece object to avoid drawing it again
+    tetrisPiece = null;
+}
+
+
+  function placePiece() {
+    for (let row = 0; row < tetrisPiece.shape.length; row++) {
+      for (let col = 0; col < tetrisPiece.shape[row].length; col++) {
+        if (tetrisPiece.shape[row][col] === 1) {
+          const newRow = tetrisPiece.row + row;
+          const newCol = tetrisPiece.col + col;
+          board[newRow][newCol] = tetrisPiece.color;
+        }
+      }
+    }
+  }
+
+  function clearLines() {
+    for (let row = 19; row >= 0; row--) {
+      if (board[row].every(cell => cell !== null)) {
+        score += 10;
+        scoreText.setText(`Score: ${score}`);
+
+        // Remove the filled line
+        board.splice(row, 1);
+        // Add an empty line at the top
+        board.unshift(Array(10).fill(null));
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
