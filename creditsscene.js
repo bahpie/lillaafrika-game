@@ -28,7 +28,7 @@ var CreditsScene = new Phaser.Class({
     },
     init: function() {},
     preload: function() {
-        databaseUrl = window.location.href
+        databaseUrl = "https://afrikafestivalen-highscore-7ce0ff5024d7.herokuapp.com"
 //        console.log("location: " + databaseUrl)
         this.makeFetchRequest(databaseUrl + "/get");
     },

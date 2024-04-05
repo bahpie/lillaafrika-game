@@ -320,7 +320,7 @@ var GameScene = new Phaser.Class({
         let playerName = prompt("Please enter your name", "Spelare Spelarsson");
         if (playerName != null) {
             console.log(playerName);
-            databaseUrl = window.location.href
+            databaseUrl = "https://afrikafestivalen-highscore-7ce0ff5024d7.herokuapp.com"
             this.makeFetchRequest(databaseUrl + "/put?name="+playerName+"&score="+score);
         }
     },
