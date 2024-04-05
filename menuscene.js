@@ -5,7 +5,7 @@ var MenuScene = new Phaser.Class({
     },
     init: function() {},
     preload: function() {
-        this.load.image('menu', 'static/assets/menubackground.png');
+        this.load.image('menu', 'assets/menubackground.png');
 
     },
     create: function() {
