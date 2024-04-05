@@ -5,7 +5,7 @@ var MenuScene = new Phaser.Class({
     },
     init: function() {},
     preload: function() {
-        this.load.image('menu', 'assets/menubackground.png');
+        this.load.image('menu', 'static/assets/menubackground.png');
 
     },
     create: function() {
@@ -13,7 +13,7 @@ var MenuScene = new Phaser.Class({
 
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
-            this.scene.start('TextScene');
+            this.scene.start('GameScene');
 
         }, this);
 

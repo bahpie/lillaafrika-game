@@ -5,22 +5,22 @@ var GameScene = new Phaser.Class({
     },
     init: function() {},
     preload: function() {
-        this.load.image('sky', 'assets/mountains-back.png');
-        this.load.image('mountains', 'assets/mountains-mid1.png');
-        this.load.image('trees', 'assets/mountains-mid2.png');
-        this.load.spritesheet('volvo', 'assets/245sheet.png', { frameWidth: 128, frameHeight: 64 });
-        this.load.image('road', 'assets/road.png');
-        this.load.image('star', 'assets/potato64.png');
-        this.load.image('particle', 'assets/potato24.png');
-        this.load.image('mosquito', 'assets/mosquito.png');
-        this.load.image('platform', 'assets/platform.png');
-        this.load.image('rocket', 'assets/rocket.png');
-        this.load.spritesheet('tractor', 'assets/tractor.png', {frameWidth: 128, frameHeight: 96});
+        this.load.image('sky', 'static/assets/mountains-back.png');
+        this.load.image('mountains', 'static/assets/mountains-mid1.png');
+        this.load.image('trees', 'static/assets/mountains-mid2.png');
+        this.load.spritesheet('volvo', 'static/assets/245sheet.png', { frameWidth: 128, frameHeight: 64 });
+        this.load.image('road', 'static/assets/road.png');
+        this.load.image('star', 'static/assets/potato64.png');
+        this.load.image('particle', 'static/assets/potato24.png');
+        this.load.image('mosquito', 'static/assets/mosquito.png');
+        this.load.image('platform', 'static/assets/platform.png');
+        this.load.image('rocket', 'static/assets/rocket.png');
+        this.load.spritesheet('tractor', 'static/assets/tractor.png', {frameWidth: 128, frameHeight: 96});
 
 
-    this.load.audio('bgmusic', 'assets/tune.mp3');
-    this.load.audio('mosquito', 'assets/mosquito.mp3');
-    this.load.audio('tractor', 'assets/tractor.wav');
+    this.load.audio('bgmusic', 'static/assets/tune.mp3');
+    this.load.audio('mosquito', 'static/assets/mosquito.mp3');
+    this.load.audio('tractor', 'static/assets/tractor.wav');
     },
 
     create: function() {
@@ -58,10 +58,8 @@ var GameScene = new Phaser.Class({
                 y = Math.min(y, 500);
             }
             platforms.create(i, 470,'platform').setScale(1).refreshBody();
-            
-            
+                        
             road = this.add.sprite(i,y, 'road');
-
 
             previousPlatform = y;
         }
@@ -126,8 +124,8 @@ var GameScene = new Phaser.Class({
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
             if(player.body.blocked.down && pointer.worldX > player.x) {
-                player.setVelocityY(-400);
-                player.setVelocityX(120)
+                player.setVelocityY(-600);
+                player.setVelocityX(150)
             } else if (rocketFuel > 0) {
                 isBoosting = true;
             } else if(pointer.worldX < player.x) {
@@ -146,7 +144,6 @@ var GameScene = new Phaser.Class({
         this.input.on('pointermove', function(pointer) {
             console.log('Pointer position - X: ' + pointer.x + ', Y: ' + pointer.y);
             if(isBoosting) {
-                var velX = Math.max(pointer.x - player.x, 0) * 5;
                 player.setVelocityX(120);
                 player.setVelocityY(pointer.y- player.y);
                 rocketFuel = Math.max(rocketFuel - 10, 0);
@@ -277,12 +274,14 @@ var GameScene = new Phaser.Class({
     },
 
     hitTractor: function(player, tractor) {
-        if(!hasCrashed) {
-            tractor.setVelocityX(0);
-            player.anims.play('crashing', true);
-            hasCrashed = true;
-        } else if(player.x > tractor.x - 10){
-            player.setVelocityX(0);
+        if(player.y > tractor.y - 20) {
+            if(!hasCrashed) {
+                tractor.setVelocityX(0);
+                player.anims.play('crashing', true);
+                hasCrashed = true;
+            } else if(player.x > tractor.x - 10){
+                player.setVelocityX(0);
+            }
         }
     },
 
@@ -319,13 +318,32 @@ var GameScene = new Phaser.Class({
 
     queryName: function() {
         let playerName = prompt("Please enter your name", "Spelare Spelarsson");
-        if (person != null) {
+        if (playerName != null) {
             console.log(playerName);
+            databaseUrl = window.location.href
+            this.makeFetchRequest(databaseUrl + "/put?name="+playerName+"&score="+score);
         }
     },
 
     secondGearEvent: function() {
-        tractor.setVelocityX(250);
+        tractor.setVelocityX(300);
+    },
+
+    makeFetchRequest: async function(url) {
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data); // Handle the data here
+
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
     }
 
 });
