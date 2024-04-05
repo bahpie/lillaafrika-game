@@ -5,22 +5,22 @@ var GameScene = new Phaser.Class({
     },
     init: function() {},
     preload: function() {
-        this.load.image('sky', 'static/assets/mountains-back.png');
-        this.load.image('mountains', 'static/assets/mountains-mid1.png');
-        this.load.image('trees', 'static/assets/mountains-mid2.png');
-        this.load.spritesheet('volvo', 'static/assets/245sheet.png', { frameWidth: 128, frameHeight: 64 });
-        this.load.image('road', 'static/assets/road.png');
-        this.load.image('star', 'static/assets/potato64.png');
-        this.load.image('particle', 'static/assets/potato24.png');
-        this.load.image('mosquito', 'static/assets/mosquito.png');
-        this.load.image('platform', 'static/assets/platform.png');
-        this.load.image('rocket', 'static/assets/rocket.png');
-        this.load.spritesheet('tractor', 'static/assets/tractor.png', {frameWidth: 128, frameHeight: 96});
+        this.load.image('sky', 'assets/mountains-back.png');
+        this.load.image('mountains', 'assets/mountains-mid1.png');
+        this.load.image('trees', 'assets/mountains-mid2.png');
+        this.load.spritesheet('volvo', 'assets/245sheet.png', { frameWidth: 128, frameHeight: 64 });
+        this.load.image('road', 'assets/road.png');
+        this.load.image('star', 'assets/potato64.png');
+        this.load.image('particle', 'assets/potato24.png');
+        this.load.image('mosquito', 'assets/mosquito.png');
+        this.load.image('platform', 'assets/platform.png');
+        this.load.image('rocket', 'assets/rocket.png');
+        this.load.spritesheet('tractor', 'assets/tractor.png', {frameWidth: 128, frameHeight: 96});
 
 
-    this.load.audio('bgmusic', 'static/assets/tune.mp3');
-    this.load.audio('mosquito', 'static/assets/mosquito.mp3');
-    this.load.audio('tractor', 'static/assets/tractor.wav');
+    this.load.audio('bgmusic', 'assets/tune.mp3');
+    this.load.audio('mosquito', 'assets/mosquito.mp3');
+    this.load.audio('tractor', 'assets/tractor.wav');
     },
 
     create: function() {
