@@ -15,7 +15,7 @@ var TextScene = new Phaser.Class({
         const text1 = this.add.text(
             this.cameras.main.width / 4,
             this.cameras.main.height / 2 - 200,
-            'Bana 1',
+            'Kapitel 1',
             {
                 fontSize: '32px',
                 fill: '#fff',
@@ -24,9 +24,9 @@ var TextScene = new Phaser.Class({
         const text2 = this.add.text(
             this.cameras.main.width / 5 - 50,
             this.cameras.main.height / 2 - 100,
-            'Vägen ut ur Göteborg',
+            'Vägen till Arvika',
             {
-                fontSize: '32px',
+                fontSize: '40px',
                 fill: '#fff',
             }
         );

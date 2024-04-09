@@ -2,20 +2,20 @@ var MenuScene = new Phaser.Class({
     Extends: Phaser.Scene,
     initialize: function() {
         Phaser.Scene.call(this, { "key": "MenuScene" });
+        console.log("Kom hit")
     },
-    init: function() {},
+    init: function() {
+    },
     preload: function() {
         this.load.image('menu', 'assets/menubackground.png');
+        this.input.on('pointerdown', function(pointer) {
+            this.scene.start('CreditsScene');
+
+        }, this);   
+
 
     },
     create: function() {
-        this.add.image(this.cameras.main.width /2, this.cameras.main.height / 2 - 100, 'menu');
-
-        this.input.on('pointerdown', function(pointer) {
-            // Handle pointer down event here
-            this.scene.start('GameScene');
-
-        }, this);
 
     },
     update: function() {}

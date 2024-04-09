@@ -18,7 +18,7 @@ var credits = [
 ];
 
 var yOffset = 400;
-var speed = 1;
+var speed = .5;
 
 
 var CreditsScene = new Phaser.Class({
@@ -30,11 +30,9 @@ var CreditsScene = new Phaser.Class({
     preload: function() {
         databaseUrl = "https://afrikafestivalen-highscore-7ce0ff5024d7.herokuapp.com"
 //        console.log("location: " + databaseUrl)
-        this.makeFetchRequest(databaseUrl + "/get");
     },
     create: function() {
-        text = this.add.text(0, 0, '', { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff' });
-
+        this.makeFetchRequest(databaseUrl + "/get");
         this.timedEvent = this.time.addEvent({ delay: 20, callback: this.updateCredits, callbackScope: this, loop: true });
     
     },
@@ -65,8 +63,9 @@ var CreditsScene = new Phaser.Class({
    //             console.log(data); // Handle the data here
                 scores = JSON.parse(data)
                 for(row in scores) {
-                    //console.log(scores[row]);
+                    console.log(scores[row]);
                     credits.push(row + " - " + scores[row] + "\r\n");                 
+                    text = this.add.text(0, 0, '', { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff' });
                 }
 
             })
