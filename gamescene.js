@@ -64,7 +64,7 @@ var GameScene = new Phaser.Class({
             previousPlatform = y;
         }
     
-        player = this.physics.add.sprite(200, 0, 'volvo');
+        player = this.physics.add.sprite(200, 0, 'volvo').setScale(1.5);
         player.setBounce(0.1);
     
         tractor = this.physics.add.sprite(700,100,'tractor');
@@ -124,12 +124,12 @@ var GameScene = new Phaser.Class({
         this.input.on('pointerdown', function(pointer) {
             // Handle pointer down event here
             if(player.body.blocked.down && pointer.worldX > player.x) {
-                player.setVelocityY(-600);
-                player.setVelocityX(150)
+                player.setVelocityY(-400);
+                player.setVelocityX(160)
             } else if (rocketFuel > 0) {
                 isBoosting = true;
             } else if(pointer.worldX < player.x) {
-                player.setVelocityX(50)
+                //player.setVelocityX(50)
             }
         }, this);
 
@@ -144,7 +144,7 @@ var GameScene = new Phaser.Class({
         this.input.on('pointermove', function(pointer) {
             console.log('Pointer position - X: ' + pointer.x + ', Y: ' + pointer.y);
             if(isBoosting) {
-                player.setVelocityX(120);
+                //player.setVelocityX(120);
                 player.setVelocityY(pointer.y- player.y);
                 rocketFuel = Math.max(rocketFuel - 10, 0);
             }
@@ -184,7 +184,7 @@ var GameScene = new Phaser.Class({
         this.physics.add.collider(player, stars, this.collectStar, null, this);
         this.physics.add.collider(rocket, platforms);
         this.physics.add.collider(tractor, platforms);
-        tractorCollider = this.physics.add.collider(tractor, stars, this.collectStar, null, this);
+        tractorCollider = this.physics.add.collider(tractor, stars, this.destroyStar, null, this);
 
     },
 
@@ -198,8 +198,7 @@ var GameScene = new Phaser.Class({
 
         if(player.x > trackLength) {
             console.log("End of the road...");
-            this.queryName();
-            this.scene.start('CreditsScene');
+            this.endGame();
         }
 
         if (mosquito.x < 0) {
@@ -217,7 +216,7 @@ var GameScene = new Phaser.Class({
         //Check if the sprite is inside the camera's viewport
         if (this.cameras.main.worldView.contains(mosquito.x, mosquito.y)) {
             if(!mosquitoSound.isPlaying) {
-                mosquitoSound.play();
+                //mosquitoSound.play();
             }
         } else {
             mosquitoSound.stop();
@@ -228,7 +227,7 @@ var GameScene = new Phaser.Class({
         }
 
         if(player.x > tractor.x) {
-            tractor.setVelocityX(40); 
+            //tractor.setVelocityX(40); 
             if(!tractorSound.isPlaying) {
                 tractorSound.play();
             }
@@ -245,9 +244,10 @@ var GameScene = new Phaser.Class({
 
     collectStar: function(player, star) {
 
-        star.disableBody(true, true);
         score += 10;
         scoreText.setText('Score: ' + score);
+
+        star.destroy();
 
         // Set the position of the emitter
         emitter.setPosition(star.x, star.y); // set the position as per your requirement
@@ -263,7 +263,11 @@ var GameScene = new Phaser.Class({
             callback: this.stopEmitter,
             callbackScope: this
         });
-        
+    },
+
+    destroyStar: function(tractor, star) {
+        star.setPosition(0,0)
+        star.destroy()
     },
 
     collectRocket: function(player, rocket) {
@@ -275,13 +279,10 @@ var GameScene = new Phaser.Class({
 
     hitTractor: function(player, tractor) {
         if(player.y > tractor.y - 20) {
-            if(!hasCrashed) {
-                tractor.setVelocityX(0);
-                player.anims.play('crashing', true);
-                hasCrashed = true;
-            } else if(player.x > tractor.x - 10){
-                player.setVelocityX(0);
-            }
+            tractor.setVelocityX(0);
+            player.setVelocityX(0)
+            player.anims.play('crashing', true);
+            setTimeout(this.endGame(), 1000);                
         }
     },
 
@@ -316,17 +317,18 @@ var GameScene = new Phaser.Class({
 
     },
 
-    queryName: function() {
+    endGame: function() {
         let playerName = prompt("Please enter your name", "Spelare Spelarsson");
         if (playerName != null) {
             console.log(playerName);
             databaseUrl = "https://afrikafestivalen-highscore-7ce0ff5024d7.herokuapp.com"
             this.makeFetchRequest(databaseUrl + "/put?name="+playerName+"&score="+score);
         }
+        this.scene.start('CreditsScene');
     },
 
     secondGearEvent: function() {
-        tractor.setVelocityX(300);
+        tractor.setVelocityX(200);
     },
 
     makeFetchRequest: async function(url) {

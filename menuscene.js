@@ -8,7 +8,7 @@ var MenuScene = new Phaser.Class({
     },
     preload: function() {
         console.log("Kom hit")
-        this.load.image('menu', 'assets/menubackground.png');
+        this.load.image('menu', 'assets/intro.gif');
         this.input.on('pointerdown', function(pointer) {
             this.scene.start('TextScene');
 

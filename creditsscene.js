@@ -1,24 +1,31 @@
 var text;
 var credits = [
-    "Bonusfamiljen produktion presenterar:",
-    "",
-    "Vägen till Lilla Afrikafestivalen 2024",
-    "",
-    " En inbjudan till årets festival",
-    "",
-    "Ljud och Grafik - Magnus Hansson",
-    "",
-    "Programmering - Björn Öhnell",
-    "",
-    "",
-    "",
-    "Nuvarande highscore:",
-    ""
-
+"                                Snyggt kört!",
+"",
+"     Du är härmed inbjuden till Lilla Afrikafestivalen 2024.",
+"",
+"      Ditt resultat i 'The Road To Lilla Afrikafestivalen'",
+"",
+"     kommer få stor betydelse för din vistelse på festivalen.",
+"",
+" Är du inte i topp på Highscore rekommenderar vi att försöka igen.", 
+"",
+"",
+"                    Mer info om festivalen kommer.",
+"",
+"",
+"                       Ljud och Grafik - Mange",
+"",
+"                        Programmering - Björn",
+"",
+"",
+"",
+"                        Nuvarande highscore:",
+""
 ];
 
-var yOffset = 400;
-var speed = .5;
+var yOffset = 600;
+var speed = .05;
 
 
 var CreditsScene = new Phaser.Class({
@@ -33,7 +40,6 @@ var CreditsScene = new Phaser.Class({
     },
     create: function() {
         this.makeFetchRequest(databaseUrl + "/get");
-        this.timedEvent = this.time.addEvent({ delay: 20, callback: this.updateCredits, callbackScope: this, loop: true });
     
     },
     update: function() {
@@ -42,13 +48,8 @@ var CreditsScene = new Phaser.Class({
     },
 
     updateCredits: function() {
-        if (yOffset > -text.height) {
-            yOffset -= speed;
-        } else {
-            // restart the scene or end the game
-            // game.scene.start('MainMenu'); // example restart scene
-        }
-        text.setText(credits.join('\n')).setFontSize('24px').setPosition(10, yOffset);
+        yOffset -= speed;
+        text.setText(credits.join('\n')).setFontSize('24px').setPosition(300, yOffset);
     },
     
     makeFetchRequest: async function(url) {
@@ -64,8 +65,9 @@ var CreditsScene = new Phaser.Class({
                 scores = JSON.parse(data)
                 for(row in scores) {
                     console.log(scores[row]);
-                    credits.push(row + " - " + scores[row] + "\r\n");                 
-                    text = this.add.text(0, 0, '', { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff' });
+                    credits.push("                             " + row + " - " + scores[row] + "\r\n");                 
+                    this.timedEvent = this.time.addEvent({ delay: 20, callback: this.updateCredits, callbackScope: this, loop: true });
+                    text = this.add.text(0, 0, '', { fontFamily: 'Tahoma', fontSize: '32px', color: '#ffffff' });
                 }
 
             })
