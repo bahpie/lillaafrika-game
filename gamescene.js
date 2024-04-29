@@ -317,8 +317,36 @@ var GameScene = new Phaser.Class({
 
     },
 
+    getCookie: function(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    },
+
+    setCookie: function(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        let expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+
     endGame: function() {
-        let playerName = prompt("Please enter your name", "Spelare Spelarsson");
+        placeholderName = this.getCookie("playerName")
+        if(placeholderName == "") {
+            placeholderName = "Spelare Spelarsson"
+        }
+        let playerName = prompt("Please enter your name", placeholderName);
+        this.setCookie("playerName", playerName, 100);
         if (playerName != null) {
             console.log(playerName);
             databaseUrl = "https://afrikafestivalen-highscore-7ce0ff5024d7.herokuapp.com"

@@ -25,7 +25,7 @@ var credits = [
 ];
 
 var yOffset = 600;
-var speed = .05;
+var speed = .1;
 
 
 var CreditsScene = new Phaser.Class({
