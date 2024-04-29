@@ -64,7 +64,7 @@ var GameScene = new Phaser.Class({
             previousPlatform = y;
         }
     
-        player = this.physics.add.sprite(200, 0, 'volvo').setScale(1.5);
+        player = this.physics.add.sprite(200, 400, 'volvo').setScale(1.5);
         player.setBounce(0.1);
     
         tractor = this.physics.add.sprite(700,100,'tractor');
