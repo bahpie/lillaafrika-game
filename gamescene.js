@@ -342,7 +342,7 @@ var GameScene = new Phaser.Class({
 
     endGame: function() {
         placeholderName = this.getCookie("playerName")
-        if(placeholderName == "") {
+        if(placeholderName == "" || placeholderName == null) {
             placeholderName = "Spelare Spelarsson"
         }
         let playerName = prompt("Please enter your name", placeholderName);
