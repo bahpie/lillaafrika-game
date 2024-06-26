@@ -1,26 +1,9 @@
 var text;
 var credits = [
-"                                Snyggt kört!",
-"",
-"     Du är härmed inbjuden till Lilla Afrikafestivalen 2024.",
-"",
-"      Ditt resultat i 'The Road To Lilla Afrikafestivalen'",
-"",
-"     kommer få stor betydelse för din vistelse på festivalen.",
-"",
-" Är du inte i topp på Highscore rekommenderar vi att försöka igen.", 
+"                           Tack för i år!",
 "",
 "",
-"                    Mer info om festivalen kommer.",
-"",
-"",
-"                       Ljud och Grafik - Mange",
-"",
-"                        Programmering - Björn",
-"",
-"",
-"",
-"                        Nuvarande highscore:",
+"                         De som spelade var:",
 ""
 ];
 
